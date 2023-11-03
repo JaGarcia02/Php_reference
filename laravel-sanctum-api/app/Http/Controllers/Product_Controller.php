@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product_Model;
 use Illuminate\Http\Request;
+use App\Services\PayUService\Exception;
 
 class Product_Controller extends Controller
 {
@@ -12,7 +13,12 @@ class Product_Controller extends Controller
      */
     public function index()
     {
-        return Product_Model::all();
+        try {
+            return Product_Model::all();
+        }  catch (\Throwable $error) {
+            throw $error;
+        }
+        
     }
 
     /**
@@ -20,12 +26,17 @@ class Product_Controller extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            "name" => "required",
-            "slug" => "required",
-            "price" => "required",
-        ]);
-        return Product_Model::create($request->all());
+        try {
+            $request->validate([
+                "name" => "required",
+                "slug" => "required",
+                "price" => "required",
+            ]);
+            return Product_Model::create($request->all());
+        } catch (\Throwable $error) {
+             throw $error;
+        }
+       
     }
 
     /**
@@ -33,7 +44,12 @@ class Product_Controller extends Controller
      */
     public function show(string $id)
     {
-        return Product_Model::find($id);
+        try {
+            return Product_Model::find($id);
+        } catch (\Exception $error) {
+            throw $error;
+        }  
+      
     }
 
     /**
@@ -41,34 +57,38 @@ class Product_Controller extends Controller
      */
     public function update(Request $request, string $id)
     {
+        try {
 
-        $product = Product_Model::find($id);
+            $product = Product_Model::find($id);
 
-        if(!$product){
-
-            return response()->json(['message' => 'Record not found'], 404);
-
-        }else {
-
-            $request->validate([
-                "name" => "required",
-                "slug" => "required",
-                "description" => "required",
-                "price" => "required",
-            ]);
-
-            $product->update([
-                "name" => $request->input('name'),
-                "slug" => $request->input('slug'),
-                "description" => $request->input('description'),
-                "price" => $request->input('price'),
-            ]);
-
-            $updated_product =  Product_Model::find($id);
-
-            return response()->json(["message"=>"Product Updated","payload"=>$updated_product],200);
-
-        }
+            if(!$product){
+    
+                return response()->json(['message' => 'Record not found'], 404);
+    
+            }else {
+    
+                $request->validate([
+                    "name" => "required",
+                    "slug" => "required",
+                    "description" => "required",
+                    "price" => "required",
+                ]);
+    
+                $product->update([
+                    "name" => $request->input('name'),
+                    "slug" => $request->input('slug'),
+                    "description" => $request->input('description'),
+                    "price" => $request->input('price'),
+                ]);
+    
+                $updated_product =  Product_Model::find($id);
+    
+                return response()->json(["message"=>"Product Updated","payload"=>$updated_product],200);
+    
+            }
+        } catch (\Exception $error) {
+            throw $error;
+        }  
     }
 
     /**
@@ -76,7 +96,30 @@ class Product_Controller extends Controller
      */
     public function destroy(string $id)
     {
-        $product = Product_Model::find($id);
+        try {
+            $product = Product_Model::find($id);
+
+            if(!$product) {
+    
+                return response()->json(['message' => 'Record not found'], 404);
+    
+            }else {
+    
+                $product->delete($id);
+                return response()->json(["message"=>"Product Deleted"],200);
+                
+            }
+        }  catch (\Exception $error) {
+            throw $error;
+        }
+    }
+
+    /**
+     * Search the specified resource from storage.
+     */
+    public function search(string $name)
+    {
+        $product = Product_Model::where("name","like", "%".$name."%")->get();
 
         if(!$product) {
 
@@ -84,9 +127,8 @@ class Product_Controller extends Controller
 
         }else {
 
-            $product->delete($id);
-            return response()->json(["message"=>"Product Deleted"],200);
-            
+            return response()->json($product,200);
+
         }
     }
 }

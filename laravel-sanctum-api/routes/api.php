@@ -4,6 +4,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Product_Controller;
+use App\Http\Controllers\User_Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,16 +17,48 @@ use App\Http\Controllers\Product_Controller;
 |
 */
 
+/*
+|--------------------------------------------------------------------------
+| Product Route
+|--------------------------------------------------------------------------
+*/
 Route::get("/product",[Product_Controller::class,"index"]);
+Route::get("/product/search/{name}",[Product_Controller::class,"search"]);
 
-Route::post("/product",[Product_Controller::class,"store"]);
 
-Route::get("/product/{id}",[Product_Controller::class,"show"]);
+/*
+|--------------------------------------------------------------------------
+| User Route
+|--------------------------------------------------------------------------
+*/
+Route::post("/register",[User_Controller::class,"register"]);
+Route::post("/login",[User_Controller::class,"login"]);
 
-Route::patch("/product/{id}",[Product_Controller::class,"update"]);
 
-Route::delete("/product/{id}",[Product_Controller::class,"destroy"]);
+/*
+|--------------------------------------------------------------------------
+| Protected Product Routes 
+|--------------------------------------------------------------------------
+*/
+Route::group(["middleware"=>["auth:sanctum"]],function(){
+    
+    Route::post("/product",[Product_Controller::class,"store"]);
+    Route::get("/product/{id}",[Product_Controller::class,"show"]);
+    Route::patch("/product/{id}",[Product_Controller::class,"update"]);
+    Route::delete("/product/{id}",[Product_Controller::class,"destroy"]);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Protected User Routes 
+|--------------------------------------------------------------------------
+// */
+Route::group(["middleware"=>["auth:sanctum"]],function(){
+
+    Route::post("/logout",[User_Controller::class,"logout"]);
+  
+
+});
+
