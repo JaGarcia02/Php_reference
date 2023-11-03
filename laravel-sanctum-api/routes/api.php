@@ -59,6 +59,17 @@ Route::group(["middleware"=>["auth:sanctum"]],function(){
 
     Route::post("/logout",[User_Controller::class,"logout"]);
   
-
 });
+
+
+/* 
+
+Summary of Tutorial: 
+
+* Login System Accquired 
+* Protected Route Learned
+* Migration
+* Tokens
+
+*/
 
