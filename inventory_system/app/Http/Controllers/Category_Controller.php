@@ -16,7 +16,7 @@ class Category_Controller extends Controller
         try {
 
             $categories = Category_Model::all();
-            return response()->json([$categories],200);
+            return response()->json($categories,200);
            
         } catch (\Exception $error) {
             throw $error;
@@ -66,9 +66,9 @@ class Category_Controller extends Controller
             }
             else
             {
-                return response()->json([
-                    "payload"=>$category
-                ],200);
+                return response()->json(
+                    $category
+                ,200);
             }
         } catch (\Exception $error) {
             throw $error;
@@ -127,11 +127,9 @@ class Category_Controller extends Controller
             {
                 $category->delete($id);
                 $updated_category = Category_Model::find($id);
-                return response()->json([
-                    "system_message"=>"Category Deleted",
-                    "object_data"=>$category,
-                    "payload"=>$updated_category
-                ],200);
+                return response()->json(
+                   $updated_category
+                ,200);
             }
         } catch (\Exception $error) {
             throw $error;
