@@ -80,11 +80,11 @@ class Category_Controller extends Controller
      */
     public function update_category(Request $request, string $id)
     {
-        try {
-            $fields = $request->validate([
-                "category_name" => "required|string",
-            ]);
+        $fields = $request->validate([
+            "category_name" => "required|string",
+        ]);
 
+        try {
             $category = Category_Model::find($id);
             if(!$category)
             {
@@ -127,8 +127,10 @@ class Category_Controller extends Controller
             {
                 $category->delete($id);
                 $updated_category = Category_Model::find($id);
+
+                $category_list = Category_Model::all();
                 return response()->json(
-                   $updated_category
+                   $category_list
                 ,200);
             }
         } catch (\Exception $error) {

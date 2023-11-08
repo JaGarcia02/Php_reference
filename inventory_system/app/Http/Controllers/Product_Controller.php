@@ -13,7 +13,8 @@ class Product_Controller extends Controller
     {
         try {
 
-            return Product_Model::all();
+            $products = Product_Model::all();
+            return response()->json($products,200);
 
         } catch (\Exception $error) {
 
@@ -52,8 +53,9 @@ class Product_Controller extends Controller
     {
        try {
 
-        return Product_Model::find($id);
-        
+           $product_details = Product_Model::find($id);
+           return response()->json($product_details,200);
+           
        } catch (\Exception $error) {
         
         throw $error;
@@ -79,8 +81,8 @@ class Product_Controller extends Controller
             ]);
 
             $product->update([
-                "product_name" => $request->input('product_name'),
-                "price" => $request->input('price'),
+                "product_name" => $fields['product_name'],
+                "price" => $fields['price']
             ]);
 
             $updated_product =  Product_Model::find($id);
@@ -106,7 +108,9 @@ class Product_Controller extends Controller
             }
 
             $product->delete($id);
-            return response()->json(["message"=>"Product Deleted"],200);
+
+            $product_list = Product_Model::all();
+            return response()->json($product_list,200);
             
         } catch (\Exception $error) {
 
@@ -115,9 +119,9 @@ class Product_Controller extends Controller
     }
 
 
-    public function search(string $name)
+    public function search(string $product_name)
     {
-        $product = Product_Model::where("name","like", "%".$name."%")->get();
+        $product = Product_Model::where("product_name","like", "%".$product_name."%")->get();
 
         if(!$product) {
 
