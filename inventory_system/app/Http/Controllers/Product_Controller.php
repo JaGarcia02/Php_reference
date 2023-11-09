@@ -13,8 +13,18 @@ class Product_Controller extends Controller
     {
         try {
 
-            $products = Product_Model::all();
-            return response()->json($products,200);
+            $products = Product_Model::with(["suppliers","categories"])->get();
+            $mappedProducts = $products->map(function ($data) {
+                return [
+                    'id' => $data->id,
+                    'product_name' => $data->product_name,
+                    'price' => $data->price,
+                    'supplier' => $data->suppliers->supplier_name,
+                    'category' => $data->categories->category_name,
+                ];
+            });
+       
+            return response()->json($mappedProducts,200);
 
         } catch (\Exception $error) {
 
@@ -53,8 +63,18 @@ class Product_Controller extends Controller
     {
        try {
 
-           $product_details = Product_Model::find($id);
-           return response()->json($product_details,200);
+        //    $product_details = Product_Model::find($id);
+           $product_details = Product_Model::with(["suppliers","categories"])->find($id);
+           
+           $product_data = [
+            "id"=> $product_details->id,
+            "product_name"=> $product_details->product_name,
+            "price"=> $product_details->price,
+            "category"=> $product_details->categories->category_name,
+            "supplier"=> $product_details->suppliers->supplier_name,
+           ];
+
+           return response()->json($product_data,200);
            
        } catch (\Exception $error) {
         
@@ -134,3 +154,31 @@ class Product_Controller extends Controller
         }
     }
 }
+
+
+/* Do not touch this is the time conversion from excel to JS
+
+// var excelDate = 43348.50278
+// ;
+
+// // Convert the number of days to a timestamp (number of seconds since January 1, 1970)
+// var timestamp = (excelDate - 25569) * 86400;
+
+// // Convert the timestamp to milliseconds
+// var milliseconds = timestamp * 1000;
+
+// // Create a new JavaScript Date object for the given timestamp
+// var date = new Date(milliseconds);
+
+// console.log(date);
+
+
+function excelToJsDate(excelDate) {
+ return new Date((excelDate - (25567 + 1)) * 86400000);
+}
+
+var excelDate = 43348.50278;
+var jsDate = excelToJsDate(excelDate);
+console.log(jsDate); // logs the JavaScript date 
+
+ */
