@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Inventory_Model;
+use App\Models\Category_Model;
+use App\Models\Product_Model;
+use App\Models\Supplier_Model;
 
 class Inventory_Controller extends Controller
 {
@@ -15,7 +18,22 @@ class Inventory_Controller extends Controller
         try {
 
             $inventory = Inventory_Model::all();
-            return response()->json($inventory,200);
+            $products = Product_Model::with(["suppliers","categories"])->get();
+            
+            $mappedProducts = $products->map(function ($data) use ($inventory) {
+                $stock = $inventory->where('product_id', $data->id)->first();
+        
+                return [
+                    'id' => $data->id,
+                    'product_name' => $data->product_name,
+                    'price' => $data->price,
+                    "stock" => $stock ? $stock->stock : 0 ,
+                    'supplier' => $data->suppliers->supplier_name,
+                    'category' => $data->categories->category_name,
+                ];
+            });
+
+            return response()->json($mappedProducts,200);
 
         } catch (\Exception $error) {
 
